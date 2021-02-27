@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\dev\CGAL-4.8\examples\Triangulation_2\info_insert_with_transform_iterator_2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\dev\CGAL-4.8\examples\Triangulation_2\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0689D074-BCE7-3BB9-9258-426F15F5B500}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\dev\CGAL-4.8\examples\Triangulation_2\17 03 20\CMakeFiles\161b8119e6af07721789ef2fb3b61c1d\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{D157CF46-DF6F-3D65-99BA-8591BEA952DE}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
