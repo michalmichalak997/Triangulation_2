@@ -10,11 +10,7 @@
 #include <CGAL/Triangulation_vertex_base_with_info_2.h>
 #include <vector>
 #include <random>
-#include <CGAL/point_generators_2.h>
-#include <CGAL/Random.h>
-#include <CGAL/Polygon_2.h>
-#include <cstdlib> 
-#include <ctime>
+
 
 using namespace std;
 
@@ -24,26 +20,20 @@ typedef CGAL::Projection_traits_xy_3<Kernel> Gt;
 typedef CGAL::Triangulation_vertex_base_with_info_2< unsigned int, Gt > Vb;
 typedef CGAL::Triangulation_data_structure_2<Vb>                       Tds;
 typedef CGAL::Delaunay_triangulation_2<Gt, Tds>                    Delaunay;
-typedef CGAL::Polygon_2<Kernel>                                     Polygon_2;
-
-typedef Kernel::Point_2                                                  Point_2;
-
-typedef Kernel::Iso_rectangle_2                                  Rectangle_2;
-typedef std::vector<Point_2>                                        Container;
-typedef CGAL::Random_points_in_square_2<Point_2>                  Point_i_generator;
-typedef CGAL::Random_points_on_square_2<Point_2>                  Point_o_generator;
 
 typedef Kernel::Point_3                                                Point;
 
 
-double coord_coef;
+double coord_coef; //a ratio to scale coordinates
+const int n = 3; //we work in 3D
+const double ex = 2; //we introduce the restriction of collinearity
 
 
 class plane //a class that stores the crucial figures in terms of computing the orientation
 {
-public:
-	static const int n = 3;			//the dimension of vectors
-	const double ex = 2;			//we introduce the restriction of collinearity
+
+private:
+
 	double first_vec[n];            //the first edge of a triangle
 	double second_vec[n];			//the second edge of a triangle
 	double third_vec[n];			//the third edge of a triangle
@@ -57,6 +47,8 @@ public:
 	string dip_degrees;             //a text variable to store the dip angle
 	string azimuth_degrees;         //a text variable to store the dip direction
 
+
+public:
 	double dip_azimuth(double normal[], int n = 2) //a function that computes the dip azimuth
 	{
 		double coeff = 180 / M_PI;
@@ -82,7 +74,7 @@ public:
 		return angle * coeff;
 	}
 
-	static double dot_product(double vector_line[], double direction[], int n = 3) //function that computes the dot product of vectors
+	double dot_product(double vector_line[], double direction[], int n = 3) //function that computes the dot product of vectors
 	{
 		double product = 0;
 		for (int i = 0; i < n; i++)
@@ -106,7 +98,9 @@ public:
 		{
 			if (lengths[i] == 0)
 			{
-				k += 1;
+				//k += 1;
+				throw runtime_error("Points coincidence");
+				
 			}
 		}
 		if (k != 0)
@@ -126,29 +120,22 @@ public:
 		}
 	}
 
-	void projection(double vector[], int n = 2) //function that projects the normal vector onto the horizontal plane
-	{
-		if (vector[2] < 0)
-		{
-			this->directional[0] = -1 * vector[0];
-			this->directional[1] = -1 * vector[1];
-		}
-		else
-		{
-			this->directional[0] = vector[0];
-			this->directional[1] = vector[1];
-		}
-	}
-
-	void get_normal(double v1[], double v2[], int n = 3)//function that computes the normal vector
-	{
-		normal_vec[0] = v1[1] * v2[2] - v2[1] * v1[2];
-		normal_vec[1] = v1[2] * v2[0] - v2[2] * v1[0];
-		normal_vec[2] = v1[0] * v2[1] - v2[0] * v1[1];
-	}
+	//void projection(double vector[], int n = 2) //function that projects the normal vector onto the horizontal plane
+	//{
+	//	if (vector[2] < 0)
+	//	{
+	//		this->directional[0] = -1 * vector[0];
+	//		this->directional[1] = -1 * vector[1];
+	//	}
+	//	else
+	//	{
+	//		this->directional[0] = vector[0];
+	//		this->directional[1] = vector[1];
+	//	}
+	//}
 
 
-	static double length(double line_vector[], int n = 3) //function that computes the length of a vector
+	double length(double line_vector[], int n = 3) //function that computes the length of a vector
 	{
 		double vector_length = sqrt(pow(line_vector[0], 2) + pow(line_vector[1], 2) + pow(line_vector[2], 2));
 		return vector_length;
@@ -212,9 +199,6 @@ public:
 			double s = sqrt(half*(half - length(first_vec))*(half - length(second_vec))*(half - length(third_vec)));
 			this->area = s * 0.0001;
 		}
-
-
-
 	}
 
 	string measure()//function that supplies orientation results also for singularities
@@ -245,331 +229,490 @@ public:
 			return dip_degrees + ";" + azimuth_degrees;
 		}
 	}
+
+	vector<double> get_normal() //function that -computes- returns the normal vector
+	{
+
+		vector<double> normal_vector = { normal_vec[0] ,normal_vec[1], normal_vec[2] };
+
+		return normal_vector;
+	}
+
+	double get_area() {
+
+		return(area);
+	}
+
+	double get_doc() {
+
+		return(doc);
+	}
+
+	vector<double> get_dip_vec() {
+
+		vector<double> dip_vector = {dip_vec[0],dip_vec[1] ,dip_vec[2] };
+		return(dip_vector);
+	}	
 };
-
-
-double angle_between(plane plane1, plane plane2) {
-
-	double coeff = 180 / M_PI;
-	double expression = abs(plane::dot_product(plane1.normal_vec, plane2.normal_vec)) / (plane::length(plane1.normal_vec)*plane::length(plane2.normal_vec));
-	double angle = acos(expression);
-	return angle * coeff;
-	return angle;
-}
 
 
 int main()
 {
-	srand((unsigned)time(NULL));
-	std::cout << "This is generator of faulted triangulated surfaces." << std::endl;
+	string path_i, path_o, path_del, normals, gridpath, path_gridvis; //text variables for input and output paths, respectively
+	double resolution_step; //the density of the grid map
 
-	int i = 1;
+	std::cout << "Type in the path of your input data:" << endl; //the user is required to type in the input path
+	std::cout << "Example: C:\\dev\\CGAL-4.8\\examples\\Triangulation_2\\JurassicBottomInput.txt" << endl << endl;
 
-	while (i < 10000)
+	std::cin >> path_i;
+
+	std::cout << "What is the coordinates coefficient - the ratio by which coordinates were multiplied to get integers (e.g. 100.00, 1000.00)" << endl;
+	std::cin >> ::coord_coef;
+
+	ifstream download(path_i);
+
+	if (!download) std::cout << "Error in opening file" << endl; //the case when the file cannot be uploaded
+
+	string tempor;//a temporary variable storing figures while uploading
+
+	vector< std::pair<Point, unsigned> > pts; //a variable storing points
+
+	while (getline(download, tempor))//loading points line-by-line
 	{
-		string file_path = "C:\\testy\\scikit7\\";
-		file_path.append(to_string(i));
-		file_path.append(".txt");
-
-		ofstream saving(file_path);
-		saving << "X_C;" << "Y_C;" << "Z_C;" << "XN;" << "YN;" << "ZN;" << "AngleNeighbor1;" << "AngleNeighbor2;" << "AngleNeighbor3;" <<
-		 "n1_xn;"  << "n1_yn;" << "n1_zn;" << 
-		 "n2_xn;" << "n2_yn;"  << "n2_zn;" <<
-		  "n3_xn;" << "n3_yn;" << "n3_zn;" <<
-		   "Fault" << endl;
-
-
-		vector<Point_2> points_f; //vector for storing faults
-
-		Point_o_generator f(1); // faults (f), argument denotes the size of a square
-
-		std::copy_n(f, 4, back_inserter(points_f));
-
-		//cout << "Duplikat w drugiej parze?" << ((points_f[0].x() == points_f[1].x()) || (points_f[0].y() == points_f[1].y())) << endl;
-		if ((points_f[2].x() == points_f[3].x()) || (points_f[2].y() == points_f[3].y())) {
-			double x1 = points_f[2].x();
-			double y1 = points_f[2].y();
-
-			points_f.erase(points_f.begin() + 2);
-			points_f.insert(points_f.begin() + 2, Point_2(y1, x1));
-		}
-
-		if ((points_f[0].x() == points_f[1].x()) || (points_f[0].y() == points_f[1].y())) {
-			double x3 = points_f[0].x();
-			double y3 = points_f[0].y();
-
-			points_f.erase(points_f.begin());
-			points_f.insert(points_f.begin(), Point_2(y3, x3));
-		}
-
-
-
-		//cout << "Po zmianach:" << endl;
-		//for (auto i : points_f) {
-		//	cout << i << endl;
-		//}
-
-		//cout << "Teraz  2.5D" << endl;
-
-		vector<Point_2> points_b; //vector for storing boreholes/points
-		Point_i_generator b(1); // boreholes (b), argument denotes the size of a square
-
-		std::copy_n(b, 100, back_inserter(points_b));
-
-		vector<Point> points_b_inclined;
-		for (auto it = points_b.begin(); it != points_b.end(); it++) {
-
-			points_b_inclined.push_back(Point((*it).x(), (*it).y(), 0.00));//*0.03*((float)rand() / RAND_MAX)));
-		}
-
-		//for (auto i : points_b_inclined) {
-			//cout << i << endl;
-		//}
-
-		vector<Point> points_b_inclined_mod;
-
-		for (auto it = points_b_inclined.begin(); it != points_b_inclined.end(); it++)
-		{
-			
-			switch (CGAL::orientation(
-				Point_2(points_f[0].x(), points_f[0].y()),
-				Point_2(points_f[1].x(), points_f[1].y()),
-				Point_2((*it).x(), (*it).y()))
-				) 
-			{
-			case CGAL::LEFT_TURN:													//zamiast 0.10 by³ 0.03
-				points_b_inclined_mod.push_back(Point((*it).x(), (*it).y(), (*it).z() - (0.10+static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (0.07 - 0.03)))))); break;
-			case CGAL::RIGHT_TURN:
-				points_b_inclined_mod.push_back(Point((*it).x(), (*it).y(), (*it).z() + (0.10+static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (0.07 - 0.03)))))); break;
-			case CGAL::COLLINEAR:
-				points_b_inclined_mod.push_back(Point((*it).x(), (*it).y(), -9999999)); break; //+static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (0.07 - 0.03)))))); break;
-			}
-		}
-		/*
-		for (auto it = points_b_inclined.begin(); it != points_b_inclined.end(); it++) {
-			
-			
-			switch (CGAL::orientation(
-				Point_2(points_f[2].x(), points_f[2].y()),
-				Point_2(points_f[3].x(), points_f[3].y()),
-				Point_2((*it).x(), (*it).y()))
-				)
-			{
-			case CGAL::LEFT_TURN:													//zamiast 0.10 by³ 0.03
-				points_b_inclined_mod.push_back(Point((*it).x(), (*it).y(), (*it).z() - (0.10))); break; //+static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (0.07 - 0.03)))))); break;
-			case CGAL::RIGHT_TURN:
-				points_b_inclined_mod.push_back(Point((*it).x(), (*it).y(), (*it).z() + (0.10))); break; //+static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (0.07 - 0.03)))))); break;
-			case CGAL::COLLINEAR:
-				points_b_inclined_mod.push_back(Point((*it).x(), (*it).y(), -9999999)); break; //+static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (0.07 - 0.03)))))); break;
-
-			}
-		
-		}
-		*/
-		Delaunay dt;
-
-		dt.insert(points_b_inclined_mod.begin(), points_b_inclined_mod.end());
-		double point_1[3];
-		double point_2[3];
-		double point_3[3];
-
-		double n1_point_1[3];
-		double n1_point_2[3];
-		double n1_point_3[3];
-
-		double n2_point_1[3];
-		double n2_point_2[3];
-		double n2_point_3[3];
-
-		double n3_point_1[3];
-		double n3_point_2[3];
-		double n3_point_3[3];
-
-		Kernel::Line_2 f1(Point_2(points_f[0].x(), points_f[0].y()), Point_2(points_f[1].x(), points_f[1].y()));
-		//Kernel::Line_2 f2(Point_2(points_f[2].x(), points_f[2].y()), Point_2(points_f[3].x(), points_f[3].y()));
-
-
-		for (Delaunay::Finite_faces_iterator fit = dt.finite_faces_begin(); fit != dt.finite_faces_end(); ++fit) //a loop for performing the Delaunay triangulation and save the results
-
-		{
-			Delaunay::Face_handle face = fit;
-			point_1[0] = dt.triangle(face)[0][0]; //extracting coordinates of points building a Delaunay triangle
-			point_1[1] = dt.triangle(face)[0][1];
-			point_1[2] = dt.triangle(face)[0][2];
-
-
-			point_2[0] = dt.triangle(face)[1][0];
-			point_2[1] = dt.triangle(face)[1][1];
-			point_2[2] = dt.triangle(face)[1][2];
-
-
-			point_3[0] = dt.triangle(face)[2][0];
-			point_3[1] = dt.triangle(face)[2][1];
-			point_3[2] = dt.triangle(face)[2][2];
-
-			Point_2 t1(dt.triangle(face)[0][0], //extracting coordinates of points building a Delaunay triangle
-				dt.triangle(face)[0][1]);
-
-			Point_2 t2(dt.triangle(face)[1][0],
-				dt.triangle(face)[1][1]);
-
-			Point_2 t3(dt.triangle(face)[2][0],
-				dt.triangle(face)[2][1]);
-
-			plane current_plane = plane(point_1, point_2, point_3);					//constructing a plane that is processed at the moment
-			string result = current_plane.measure();								//extracting the dip angle and the dip direction
-			vector<string> centroid = current_plane.center(point_1, point_2, point_3);		//extracting the centroid of a Delaunay triangle
-
-			double x_n = current_plane.normal_vec[0]; //extracting coordinates of the normal vector of a planar Delaunay triangle
-			double y_n = current_plane.normal_vec[1];
-			double z_n = current_plane.normal_vec[2];
-
-			x_n = x_n / current_plane.length(current_plane.normal_vec);
-			y_n = y_n / current_plane.length(current_plane.normal_vec);
-			z_n = z_n / current_plane.length(current_plane.normal_vec);
-
-			double x_d = current_plane.dip_vec[0]; //extracting coordinates of the dip vector of a planar Delaunay triangle
-			double y_d = current_plane.dip_vec[1];
-			double z_d = current_plane.dip_vec[2];
-
-			//Wektory normalne s¹siadów
-
-			double n1_x_n; //extracting coordinates of the normal vector of a planar Delaunay triangle
-			double n1_y_n;
-			double n1_z_n;
-
-			double n2_x_n;//extracting coordinates of the normal vector of a planar Delaunay triangle
-			double n2_y_n;
-			double n2_z_n;
-
-			double n3_x_n; //extracting coordinates of the normal vector of a planar Delaunay triangle
-			double n3_y_n;
-			double n3_z_n;
-			
-
-
-			//pierwszy sasiad
-			double n1dist;
-
-			if (dt.is_infinite(face->neighbor(0)) == true) {
-				n1dist = -999999;
-
-				n1_x_n = 0; //extracting coordinates of the normal vector of a planar Delaunay triangle
-				n1_y_n = 0;
-				n1_z_n = 0;
-			}
-			else {
-				n1_point_1[0] = dt.triangle(face->neighbor(0))[0][0]; //extracting coordinates of points building a Delaunay triangle
-				n1_point_1[1] = dt.triangle(face->neighbor(0))[0][1];
-				n1_point_1[2] = dt.triangle(face->neighbor(0))[0][2];
-
-
-				n1_point_2[0] = dt.triangle(face->neighbor(0))[1][0]; //extracting coordinates of points building a Delaunay triangle
-				n1_point_2[1] = dt.triangle(face->neighbor(0))[1][1];
-				n1_point_2[2] = dt.triangle(face->neighbor(0))[1][2];
-
-
-				n1_point_3[0] = dt.triangle(face->neighbor(0))[2][0]; //extracting coordinates of points building a Delaunay triangle
-				n1_point_3[1] = dt.triangle(face->neighbor(0))[2][1];
-				n1_point_3[2] = dt.triangle(face->neighbor(0))[2][2];
-
-				plane neighbor1_plane = plane(n1_point_1, n1_point_2, n1_point_3);
-				n1_x_n = neighbor1_plane.normal_vec[0] / neighbor1_plane.length(neighbor1_plane.normal_vec); //extracting coordinates of the normal vector of a planar Delaunay triangle
-				n1_y_n = neighbor1_plane.normal_vec[1] / neighbor1_plane.length(neighbor1_plane.normal_vec);
-				n1_z_n = neighbor1_plane.normal_vec[2] / neighbor1_plane.length(neighbor1_plane.normal_vec);
-
-				n1dist = angle_between(current_plane, neighbor1_plane);
-			}
-
-
-			//2 sasiad
-			double n2dist;
-
-			if (dt.is_infinite(face->neighbor(1)) == true) {
-				n2dist = -99999999;
-
-				n2_x_n = 0; //extracting coordinates of the normal vector of a planar Delaunay triangle
-				n2_y_n = 0;
-				n2_z_n = 0;
-			}
-			else {
-				n2_point_1[0] = dt.triangle(face->neighbor(1))[0][0]; //extracting coordinates of points building a Delaunay triangle
-				n2_point_1[1] = dt.triangle(face->neighbor(1))[0][1];
-				n2_point_1[2] = dt.triangle(face->neighbor(1))[0][2];
-
-
-				n2_point_2[0] = dt.triangle(face->neighbor(1))[1][0]; //extracting coordinates of points building a Delaunay triangle
-				n2_point_2[1] = dt.triangle(face->neighbor(1))[1][1];
-				n2_point_2[2] = dt.triangle(face->neighbor(1))[1][2];
-
-
-				n2_point_3[0] = dt.triangle(face->neighbor(1))[2][0]; //extracting coordinates of points building a Delaunay triangle
-				n2_point_3[1] = dt.triangle(face->neighbor(1))[2][1];
-				n2_point_3[2] = dt.triangle(face->neighbor(1))[2][2];
-
-				plane neighbor2_plane = plane(n2_point_1, n2_point_2, n2_point_3);
-
-				n2_x_n = neighbor2_plane.normal_vec[0] / neighbor2_plane.length(neighbor2_plane.normal_vec); //extracting coordinates of the normal vector of a planar Delaunay triangle
-				n2_y_n = neighbor2_plane.normal_vec[1] / neighbor2_plane.length(neighbor2_plane.normal_vec);
-				n2_z_n = neighbor2_plane.normal_vec[2] / neighbor2_plane.length(neighbor2_plane.normal_vec);
-
-				n2dist = angle_between(current_plane, neighbor2_plane);
-			}
-
-
-			//3 sasiad
-
-			double n3dist;
-
-
-		
-			if (dt.is_infinite(face->neighbor(2)) == true) {
-				n3dist = -999999999;
-
-				n3_x_n = 0; //extracting coordinates of the normal vector of a planar Delaunay triangle
-				n3_y_n = 0;
-				n3_z_n = 0;
-			}
-			else {
-				n3_point_1[0] = dt.triangle(face->neighbor(2))[0][0]; //extracting coordinates of points building a Delaunay triangle
-				n3_point_1[1] = dt.triangle(face->neighbor(2))[0][1];
-				n3_point_1[2] = dt.triangle(face->neighbor(2))[0][2];
-
-				n3_point_2[0] = dt.triangle(face->neighbor(2))[1][0]; //extracting coordinates of points building a Delaunay triangle
-				n3_point_2[1] = dt.triangle(face->neighbor(2))[1][1];
-				n3_point_2[2] = dt.triangle(face->neighbor(2))[1][2];
-
-				n3_point_3[0] = dt.triangle(face->neighbor(2))[2][0]; //extracting coordinates of points building a Delaunay triangle
-				n3_point_3[1] = dt.triangle(face->neighbor(2))[2][1];
-				n3_point_3[2] = dt.triangle(face->neighbor(2))[2][2];
-
-				plane neighbor3_plane = plane(n3_point_1, n3_point_2, n3_point_3);
-
-				n3_x_n = neighbor3_plane.normal_vec[0]/ neighbor3_plane.length(neighbor3_plane.normal_vec) ; //extracting coordinates of the normal vector of a planar Delaunay triangle
-				n3_y_n = neighbor3_plane.normal_vec[1]/ neighbor3_plane.length(neighbor3_plane.normal_vec);
-				n3_z_n = neighbor3_plane.normal_vec[2]/ neighbor3_plane.length(neighbor3_plane.normal_vec);
-
-
-				n3dist = angle_between(current_plane, neighbor3_plane);
-			}
-			
-			
-			bool intersect = CGAL::do_intersect(Kernel::Triangle_2(t1, t2, t3), f1); //|| CGAL::do_intersect(Kernel::Triangle_2(t1, t2, t3), f2);
-
-			    saving << 
-				centroid[0] << ";" << centroid[1] << ";" << centroid[2] << ";" << 
-				x_n << ";" << y_n << ";" << z_n << ";" <<
-				n1dist << ";" << n2dist << ";" << n3dist << ";" <<
-					n1_x_n << ";" << n1_y_n << ";" << n1_z_n << ";" <<
-					n2_x_n << ";" << n2_y_n << ";" << n2_z_n << ";" <<
-					n3_x_n << ";" << n3_y_n << ";" << n3_z_n << ";" <<
-			    intersect << endl;
-		}
-
-		i++;
+		istringstream convert(tempor);
+		double a, b, c;
+		unsigned int d;
+
+		if (!(convert >> a >> b >> c >> d)) { break; }
+		pts.push_back(make_pair(Point(a / coord_coef, b / coord_coef, c / coord_coef), d));
 	}
 
 
-	system("pause");
+	double min_x = pts.begin()->first[0];
+	double min_y = pts.begin()->first[1];
+
+	double max_x = pts.begin()->first[0];
+	double max_y = pts.begin()->first[1];
+
+	for (auto it = pts.begin(); it != pts.end(); it++) { //calculating boundary coordinates
+
+		if (it->first[0] < min_x) {
+			min_x = it->first[0];
+		}
+
+		if (it->first[1] < min_y) {
+			min_y = it->first[1];
+		}
+
+		if (it->first[0] > max_x) {
+			max_x = it->first[0];
+		}
+
+		if (it->first[1] > max_y) {
+			max_y = it->first[1];
+		}
+
+	}
+
+	std::cout << "Type in the path of the output:" << endl; //the user is required to type in the output path
+	std::cout << "Example: C:\\dev\\CGAL-4.8\\examples\\Triangulation_2\\JurassicBottomOutput.txt" << endl << endl;
+
+	std::cin >> path_o;
+
+	std::cout << "Type in the path of the Delaunay visualization .vtu file:" << endl; //the user is required to type in the output path
+	std::cout << "Example: C:\\dev\\CGAL-4.8\\examples\\Triangulation_2\\Delaunay.vtu" << endl << endl;
+
+	std::cin >> path_del;
+
+	std::cout << "Type in the path of the normals .vtu file:" << endl; //the user is required to type in the output path
+	std::cout << "Example: C:\\dev\\CGAL-4.8\\examples\\Triangulation_2\\normals.vtu" << endl << endl;
+
+	std::cin >> normals;
+
+	std::cout << "Type in the path of gridpath .txt file:" << endl; //the user is required to type in the output path
+	std::cout << "Example: C:\\dev\\CGAL-4.8\\examples\\Triangulation_2\\gridpath.txt" << endl << endl;
+
+	std::cin >> gridpath;
+
+	std::cout << "Type in the path of grid .vtu file:" << endl; //the user is required to type in the output path
+	std::cout << "Example: C:\\dev\\CGAL-4.8\\examples\\Triangulation_2\\gridvis.vtu" << endl << endl;
+
+	std::cin >> path_gridvis;
+
+	std::cout << "Type in the grid resolution: (e.g. 100.00)" << endl;
+	std::cin >> resolution_step;
+
+	Delaunay dt; //a variable storing the geometrical elements of Delaunay triangulation
+	dt.insert(pts.begin(), pts.end());
+
+	cout << "The number of points taken:" << pts.size() << ". The number of vertices in triangulation:" << dt.number_of_vertices() << endl;
+
+	if (pts.size() != dt.number_of_vertices()) { throw( runtime_error("Check for duplicates in data!")); }
+
+	ofstream saving(path_o); //a stream variable to save output figures
+
+	saving << "X1;" << "Y1;" << "Z1;" << "X2;" << "Y2;" << "Z2;" << "X3;" << "Y3;" << "Z3;" << "X_C;" //column names are saved
+		<< "Y_C;" << "Z_C;" << "X_N;" << "Y_N;" << "Z_N;" << "X_D;" << "Y_D;" << "Z_D;" << "Dip_ang;" << "Dip_dir;" << "DOC;" << "Area;" << "IDT1;" << "IDT2;" << "IDT3" << endl;
+
+	ofstream gridsave(gridpath);
+
+	vector<Point> grid_pts;
+	double elevation_grid_pts = 0.00; //the z-coordinate is equal to zero (arbitrary decision)
+
+	for (auto i = min_x; i < max_x; i = i + resolution_step) {
+		for (auto j = min_y; j < max_y; j = j + resolution_step) {
+			grid_pts.push_back(Point(i, j, elevation_grid_pts));
+		}
+	}
+
+	gridsave << "px;" << "py;" << "IDT1;" << "IDT2;" << "IDT3" << endl;
+
+	vector<Point> grid_pts_finite;
+
+	for (auto regpoint : grid_pts) {
+		Delaunay::Face_handle facereg = dt.locate(regpoint);
+
+
+		int inf1 = facereg->vertex(0)->info();
+		int inf2 = facereg->vertex(1)->info();
+		int inf3 = facereg->vertex(2)->info();
+
+		if ((inf1 > 0) & (inf2 > 0) & (inf3 > 0)) //we are interested only in points within the convex hull
+		{
+			grid_pts_finite.push_back(Point(regpoint.x(), regpoint.y(), elevation_grid_pts));
+			gridsave << fixed << regpoint.x() << ";" << regpoint.y() << ";" << inf1 << ";" << inf2 << ";" << inf3 << endl;
+		}
+	}
+
+    double point_1[4];
+	double point_2[4];
+	double point_3[4];
+
+	for (Delaunay::Finite_faces_iterator fit = dt.finite_faces_begin(); fit != dt.finite_faces_end(); ++fit) //a loop for performing the Delaunay triangulation and save the results
+
+	{
+		Delaunay::Face_handle face = fit;
+		point_1[0] = dt.triangle(face)[0][0]; //extracting coordinates of points building a Delaunay triangle
+		point_1[1] = dt.triangle(face)[0][1];
+		point_1[2] = dt.triangle(face)[0][2];
+		point_1[3] = face->vertex(0)->info();
+
+		point_2[0] = dt.triangle(face)[1][0];
+		point_2[1] = dt.triangle(face)[1][1];
+		point_2[2] = dt.triangle(face)[1][2];
+		point_2[3] = face->vertex(1)->info();
+
+		point_3[0] = dt.triangle(face)[2][0];
+		point_3[1] = dt.triangle(face)[2][1];
+		point_3[2] = dt.triangle(face)[2][2];
+		point_3[3] = face->vertex(2)->info();
+
+		plane current_plane = plane(point_1, point_2, point_3);					//constructing a plane that is processed at the moment
+		string result = current_plane.measure();								//extracting the dip angle and the dip direction
+		vector<string> centroid = current_plane.center(point_1, point_2, point_3);		//extracting the centroid of a Delaunay triangle
+
+		double x_n = current_plane.get_normal()[0]; //extracting coordinates of the normal vector of a planar Delaunay triangle
+		double y_n = current_plane.get_normal()[1];
+		double z_n = current_plane.get_normal()[2];
+
+		double normal_vector_double[n] = { current_plane.get_normal()[0] ,current_plane.get_normal()[1] ,current_plane.get_normal()[2] };
+		x_n = x_n / current_plane.length(normal_vector_double);
+		y_n = y_n / current_plane.length(normal_vector_double);
+		z_n = z_n / current_plane.length(normal_vector_double);
+
+		double x_d = current_plane.get_dip_vec()[0]; //extracting coordinates of the dip vector of a planar Delaunay triangle
+		double y_d = current_plane.get_dip_vec()[1];
+		double z_d = current_plane.get_dip_vec()[2];
+
+		saving << to_string(point_1[0]) << ";" << to_string(point_1[1]) << ";" << to_string(point_1[2]) << ";" << //saving orientation elements with respect to the column names
+			to_string(point_2[0]) << ";" << to_string(point_2[1]) << ";" << to_string(point_2[2]) << ";" <<
+			to_string(point_3[0]) << ";" << to_string(point_3[1]) << ";" << to_string(point_3[2]) << ";" <<
+			centroid[0] << ";" << centroid[1] << ";" << centroid[2] << ";" << x_n << ";" << y_n << ";" << z_n << ";"
+			<< x_d << ";" << y_d << ";" << z_d << ";" << result << ";" << current_plane.get_doc() << ";" << current_plane.get_area() << ";" <<
+			point_1[3] << ";" << point_2[3] << ";" << point_3[3] << endl;
+	}
+
+	ofstream delaunays(path_del);
+
+	delaunays <<
+		"<?xml version=\"1.0\"?>" << "\n" <<
+		"<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">" << "\n  " <<
+		"<UnstructuredGrid>" << "\n    " <<
+		"<Piece NumberOfPoints=\"" << dt.number_of_vertices() << "\" NumberOfCells=\"" << dt.number_of_faces() << "\">" << "\n      "
+		"<PointData Scalars=\"scalars\">" << "\n        "
+		"<DataArray type=\"Float32\" Name=\"scalars\" format=\"ascii\">" << "\n          ";
+
+	for (auto it = pts.begin(); it != pts.end(); it++)
+	{
+		delaunays << fixed << (it->first[2]) << "\n          ";
+	}
+
+	delaunays << "\n        " <<
+		"</DataArray>" << "\n      " <<
+		"</PointData>" << "\n      " <<
+		"<Points>" << "\n        " <<
+		"<DataArray type=\"Float32\" NumberOfComponents=\"3\" format=\"ascii\">" << "\n           ";
+
+	for (auto it = pts.begin(); it != pts.end(); it++)
+	{
+		double x = (it->first[1]), y = (it->first[0]), z = (it->first[2]);
+		delaunays << fixed << x << " " << y << " " << z << "\n           ";
+	}
+
+	delaunays << "\n        " <<
+		"</DataArray>" << "\n      " <<
+		"</Points>" << "\n      " <<
+		"<Cells>" << "\n        " <<
+		"<DataArray type=\"Int32\" Name=\"connectivity\" format=\"ascii\">" << "\n          ";
+
+	for (Delaunay::Finite_faces_iterator fit = dt.finite_faces_begin(); fit != dt.finite_faces_end(); ++fit)
+	{
+		Delaunay::Face_handle face = fit;
+		delaunays << face->vertex(0)->info()-1 << " " << face->vertex(1)->info()-1 << " " << face->vertex(2)->info()-1 << "\n          ";
+	}
+
+	delaunays << "\n        " <<
+		"</DataArray>" << "\n        " <<
+		"<DataArray type=\"Int32\" Name=\"offsets\" format=\"ascii\">" << "\n          ";
+
+	for (auto i = 3; i <= 3 * dt.number_of_faces(); i = i + 3)
+	{
+		delaunays << i << " ";
+	}
+
+	delaunays << "\n        " <<
+		"</DataArray>" << "\n        " <<
+		"<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">" <<
+		"\n          ";
+
+	for (auto i = 1; i <= dt.number_of_faces(); i++)
+	{
+		delaunays << 5 << " ";
+	}
+
+	delaunays << "\n        " <<
+		"</DataArray>" << "\n      " <<
+		"</Cells>" << "\n    " <<
+		"</Piece>" << "\n  " <<
+		"</UnstructuredGrid>" << "\n" <<
+		"</VTKFile>";
+	
+	
+
+	ofstream normalvis(normals);
+
+	normalvis <<
+		"<?xml version=\"1.0\"?>" << "\n" <<
+		"<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">" << "\n  " <<
+		"<UnstructuredGrid>" << "\n    " <<
+		"<Piece NumberOfPoints=\"" << dt.number_of_faces() << "\" NumberOfCells=\"" << dt.number_of_faces() << "\">" << "\n      "
+
+		"<PointData Scalars=\"scalars\">" << "\n        "
+		"<DataArray type=\"Float32\" Name=\"scalars\" format=\"ascii\">" << "\n          ";
+
+
+	for (Delaunay::Finite_faces_iterator fit = dt.finite_faces_begin(); fit != dt.finite_faces_end(); ++fit) //a loop for performing the Delaunay triangulation and save the results
+
+	{
+		Delaunay::Face_handle face = fit;
+		point_1[0] = dt.triangle(face)[0][0]; //extracting coordinates of points building a Delaunay triangle
+		point_1[1] = dt.triangle(face)[0][1];
+		point_1[2] = dt.triangle(face)[0][2];
+		point_1[3] = face->vertex(0)->info();
+
+		point_2[0] = dt.triangle(face)[1][0];
+		point_2[1] = dt.triangle(face)[1][1];
+		point_2[2] = dt.triangle(face)[1][2];
+		point_2[3] = face->vertex(1)->info();
+
+		point_3[0] = dt.triangle(face)[2][0];
+		point_3[1] = dt.triangle(face)[2][1];
+		point_3[2] = dt.triangle(face)[2][2];
+		point_3[3] = face->vertex(2)->info();
+
+		plane current_plane = plane(point_1, point_2, point_3);					//constructing a plane that is processed at the moment
+		vector<string> centroid = current_plane.center(point_1, point_2, point_3);		//extracting the centroid of a Delaunay triangle
+		normalvis << fixed << centroid[2] << "\n          ";
+	}
+
+	normalvis << "\n        " <<
+		"</DataArray>" << "\n      " <<
+		"</PointData>" << "\n      " <<
+		"<Points>" << "\n        " <<
+		"<DataArray type=\"Float32\" NumberOfComponents=\"3\" format=\"ascii\">" << "\n           ";
+
+	for (Delaunay::Finite_faces_iterator fit = dt.finite_faces_begin(); fit != dt.finite_faces_end(); ++fit) //a loop for performing the Delaunay triangulation and save the results
+
+	{
+		Delaunay::Face_handle face = fit;
+		point_1[0] = dt.triangle(face)[0][0]; //extracting coordinates of points building a Delaunay triangle
+		point_1[1] = dt.triangle(face)[0][1];
+		point_1[2] = dt.triangle(face)[0][2];
+		point_1[3] = face->vertex(0)->info();
+
+		point_2[0] = dt.triangle(face)[1][0];
+		point_2[1] = dt.triangle(face)[1][1];
+		point_2[2] = dt.triangle(face)[1][2];
+		point_2[3] = face->vertex(1)->info();
+
+		point_3[0] = dt.triangle(face)[2][0];
+		point_3[1] = dt.triangle(face)[2][1];
+		point_3[2] = dt.triangle(face)[2][2];
+		point_3[3] = face->vertex(2)->info();
+
+		plane current_plane = plane(point_1, point_2, point_3);					//constructing a plane that is processed at the moment
+		string result = current_plane.measure();								//extracting the dip angle and the dip direction
+		vector <string> centroid = current_plane.center(point_1, point_2, point_3);
+
+		normalvis << fixed << centroid[1] << " " << centroid[0] << " " << centroid[2] << "\n           ";
+
+	}
+
+	normalvis << "\n        " <<
+		"</DataArray>" << "\n      " <<
+		"</Points>" << "\n      " <<
+		"<Cells>" << "\n        " <<
+		"<DataArray type=\"Int32\" Name=\"connectivity\" format=\"ascii\">" << "\n          ";
+
+	for (auto i = 0; i < dt.number_of_faces(); i++)
+	{
+		normalvis << i << "\n          ";
+	}
+
+	normalvis << "\n        " <<
+		"</DataArray>" << "\n        " <<
+		"<DataArray type=\"Int32\" Name=\"offsets\" format=\"ascii\">" << "\n          ";
+
+	for (auto i = 1; i <= dt.number_of_faces(); i++)
+	{
+		normalvis << i << " ";
+	}
+
+	normalvis << "\n        " <<
+		"</DataArray>" << "\n        " <<
+		"<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">" <<
+		"\n          ";
+
+	for (auto i = 1; i <= dt.number_of_faces(); i++)
+	{
+		normalvis << 1 << " ";
+	}
+
+	normalvis << "\n        " <<
+		"</DataArray>" << "\n      " <<
+		"</Cells>" << "\n    " <<
+		"<CellData Normals=\"cell_normals\">" << "\n      " <<
+		"<DataArray type=\"Float32\" Name=\"cell_normals\" NumberOfComponents=\"3\" format=\"ascii\">" << "\n          ";
+
+
+	for (Delaunay::Finite_faces_iterator fit = dt.finite_faces_begin(); fit != dt.finite_faces_end(); ++fit)
+	{
+		Delaunay::Face_handle face = fit;
+
+		point_1[0] = dt.triangle(face)[0][0]; //extracting coordinates of points building a Delaunay triangle
+		point_1[1] = dt.triangle(face)[0][1];
+		point_1[2] = dt.triangle(face)[0][2];
+		point_1[3] = face->vertex(0)->info();
+
+		point_2[0] = dt.triangle(face)[1][0];
+		point_2[1] = dt.triangle(face)[1][1];
+		point_2[2] = dt.triangle(face)[1][2];
+		point_2[3] = face->vertex(1)->info();
+
+		point_3[0] = dt.triangle(face)[2][0];
+		point_3[1] = dt.triangle(face)[2][1];
+		point_3[2] = dt.triangle(face)[2][2];
+		point_3[3] = face->vertex(2)->info();
+
+		plane current_plane = plane(point_1, point_2, point_3);					//constructing a plane that is processed at the moment
+		string result = current_plane.measure();								//extracting the dip angle and the dip direction
+		vector <string> centroid = current_plane.center(point_1, point_2, point_3);		//extracting the centroid of a Delaunay triangle
+
+		double x_n = current_plane.get_normal()[0]; //extracting coordinates of the normal vector of a planar Delaunay triangle
+		double y_n = current_plane.get_normal()[1];
+		double z_n = current_plane.get_normal()[2];
+
+		double normal_vector_double[n] = { current_plane.get_normal()[0] ,current_plane.get_normal()[1] ,current_plane.get_normal()[2] };
+		x_n = x_n / current_plane.length(normal_vector_double);
+		y_n = y_n / current_plane.length(normal_vector_double);
+		z_n = z_n / current_plane.length(normal_vector_double);
+
+		normalvis << fixed << y_n << " " << x_n << " " << z_n << "\n          ";
+	}
+
+	normalvis <<
+		"</DataArray>" << "\n      " <<
+		"</CellData>" << "\n      " <<
+		"<Cells>" << "\n        " <<
+		"</Cells>" << "\n    " <<
+		"</Piece>" << "\n  " <<
+		"</UnstructuredGrid>" << "\n" <<
+		"</VTKFile>";
+
+	ofstream gridvis(path_gridvis);
+
+	gridvis <<
+		"<?xml version=\"1.0\"?>" << "\n" <<
+		"<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">" << "\n  " <<
+		"<UnstructuredGrid>" << "\n    " <<
+		"<Piece NumberOfPoints=\"" << grid_pts_finite.size() << "\" NumberOfCells=\"" << grid_pts_finite.size() << "\">" << "\n      "
+		"<PointData Scalars=\"scalars\">" << "\n        "
+		"<DataArray type=\"Float32\" Name=\"scalars\" format=\"ascii\">" << "\n          ";
+
+	for (auto it = grid_pts_finite.begin(); it != grid_pts_finite.end(); it++)
+	{
+		gridvis << it->z() << "\n          "; //the z-coordinate is equal to zero (arbitrary decision)
+	}
+
+	gridvis << "\n        " <<
+		"</DataArray>" << "\n      " <<
+		"</PointData>" << "\n      " <<
+		"<Points>" << "\n        " <<
+		"<DataArray type=\"Float32\" NumberOfComponents=\"3\" format=\"ascii\">" << "\n           ";
+
+	for (auto it = grid_pts_finite.begin(); it != grid_pts_finite.end(); it++)
+	{
+		gridvis << fixed << it->y() << " " << it->x() << " " << it->z() << "\n           ";
+	}
+
+	gridvis << "\n        " <<
+		"</DataArray>" << "\n      " <<
+		"</Points>" << "\n      " <<
+		"<Cells>" << "\n        " <<
+		"<DataArray type=\"Int32\" Name=\"connectivity\" format=\"ascii\">" << "\n          ";
+
+
+	for (auto i = 0; i < grid_pts_finite.size(); i++) //zamienic liczbe 24 na grid_pts size
+	{
+		gridvis << i << "\n          ";
+	}
+
+	gridvis << "\n        " <<
+		"</DataArray>" << "\n        " <<
+		"<DataArray type=\"Int32\" Name=\"offsets\" format=\"ascii\">" << "\n          ";
+
+	for (auto i = 1; i <= 1 * grid_pts_finite.size(); i = i + 1)
+	{
+		gridvis << i << " ";
+	}
+
+	gridvis << "\n        " <<
+		"</DataArray>" << "\n        " <<
+		"<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">" <<
+		"\n          ";
+
+	for (auto i = 1; i <= grid_pts_finite.size(); i++)
+	{
+		gridvis << 1 << " ";
+	}
+
+	gridvis << "\n        " <<
+		"</DataArray>" << "\n      " <<
+		"</Cells>" << "\n    " <<
+		"</Piece>" << "\n  " <<
+		"</UnstructuredGrid>" << "\n" <<
+		"</VTKFile>";
+
+	std::system("pause");
 	return 0;
 }

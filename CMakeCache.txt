@@ -30,6 +30,9 @@ CGAL_DIR:PATH=C:/dev/CGAL-4.8
 // TRUE.
 CGAL_DONT_OVERRIDE_CMAKE_FLAGS:BOOL=TRUE
 
+//Path to a program.
+CMAKE_AR:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.16.27023/bin/Hostx86/x64/lib.exe
+
 //Build type: Release or Debug
 CMAKE_BUILD_TYPE:STRING=Release
 
@@ -114,6 +117,15 @@ CMAKE_MODULE_LINKER_FLAGS_RELEASE:STRING=/INCREMENTAL:NO
 //Flags used by the linker during the creation of modules during
 // RELWITHDEBINFO builds.
 CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO:STRING=/debug /INCREMENTAL
+
+//Path to a program.
+CMAKE_MT:FILEPATH=C:/Program Files (x86)/Windows Kits/10/bin/10.0.17763.0/x86/mt.exe
+
+//Value Computed by CMake
+CMAKE_PROJECT_DESCRIPTION:STATIC=
+
+//Value Computed by CMake
+CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
 CMAKE_PROJECT_NAME:STATIC=Triangulation_2_example
@@ -205,13 +217,13 @@ Boost_DEBUG-ADVANCED:INTERNAL=1
 CGAL_3RD_PARTY_DEFINITIONS:INTERNAL=-DBOOST_ALL_DYN_LINK;-DBOOST_ALL_DYN_LINK
 //ADVANCED property for variable: CGAL_Boost_USE_STATIC_LIBS
 CGAL_Boost_USE_STATIC_LIBS-ADVANCED:INTERNAL=1
-CGAL_EXECUTABLE_TARGETS:INTERNAL=adding_handles;colored_face;constrained;constrained_hierarchy_plus;constrained_plus;copy_triangulation_2;hierarchy;info_insert_with_pair_iterator_2;info_insert_with_pair_iterator_regular_2;info_insert_with_transform_iterator_2;info_insert_with_zip_iterator_2;polygon_triangulation;polylines_triangulation;print_cropped_voronoi;regular;terrain;triangulation_prog1;voronoi
+CGAL_EXECUTABLE_TARGETS:INTERNAL=adding_handles;colored_face;constrained;constrained_hierarchy_plus;constrained_plus;copy_triangulation_2;hierarchy;info_insert_with_pair_iterator_2;info_insert_with_pair_iterator_regular_2;info_insert_with_transform_iterator_2;info_insert_with_zip_iterator_2;polygon_triangulation;polylines_triangulation;print_cropped_voronoi;regular;terrain;triangulation_prog1;voronoi;adding_handles;colored_face;constrained;constrained_hierarchy_plus;constrained_plus;copy_triangulation_2;hierarchy;info_insert_with_pair_iterator_2;info_insert_with_pair_iterator_regular_2;info_insert_with_transform_iterator_2;info_insert_with_zip_iterator_2;polygon_triangulation;polylines_triangulation;print_cropped_voronoi;regular;terrain;triangulation_prog1;voronoi
 //This is the directory where this CMakeCache.txt was created
 CMAKE_CACHEFILE_DIR:INTERNAL=c:/dev/CGAL-4.8/examples/Triangulation_2
 //Major version of cmake used to create the current loaded cache
 CMAKE_CACHE_MAJOR_VERSION:INTERNAL=3
 //Minor version of cmake used to create the current loaded cache
-CMAKE_CACHE_MINOR_VERSION:INTERNAL=12
+CMAKE_CACHE_MINOR_VERSION:INTERNAL=19
 //Patch version of cmake used to create the current loaded cache
 CMAKE_CACHE_PATCH_VERSION:INTERNAL=4
 //Path to CMake executable.
@@ -281,6 +293,8 @@ CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_MODULE_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO
 CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_MT
+CMAKE_MT-ADVANCED:INTERNAL=1
 //number of local generators
 CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
 //Platform information initialized
@@ -299,7 +313,7 @@ CMAKE_RC_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_RC_FLAGS_RELWITHDEBINFO
 CMAKE_RC_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //Path to CMake installation.
-CMAKE_ROOT:INTERNAL=C:/Program Files/CMake/share/cmake-3.12
+CMAKE_ROOT:INTERNAL=C:/Program Files/CMake/share/cmake-3.19
 //ADVANCED property for variable: CMAKE_SHARED_LINKER_FLAGS
 CMAKE_SHARED_LINKER_FLAGS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_SHARED_LINKER_FLAGS_DEBUG
