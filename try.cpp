@@ -190,10 +190,6 @@ public:
 				normal_vec[2] *= -1;
 			}
 
-			normal_vec[0] /= length(normal_vec);
-			normal_vec[1] /= length(normal_vec);
-			normal_vec[2] /= length(normal_vec);
-
 			this->dip_vec[0] = cos(dip_angle(z_axis, normal_vec) / coeff)*cos(dip_azimuth(normal_vec) / coeff);
 			this->dip_vec[1] = cos(dip_angle(z_axis, normal_vec) / coeff)*sin(dip_azimuth(normal_vec) / coeff);
 			this->dip_vec[2] = -sin(dip_angle(z_axis, normal_vec) / coeff);
@@ -317,8 +313,6 @@ int main()
 		}
 
 	}
-
-
 
 	std::cout << "Type in the path of the output:" << endl; //the user is required to type in the output path
 	std::cout << "Example: C:\\dev\\CGAL-4.8\\examples\\Triangulation_2\\JurassicBottomOutput.txt" << endl << endl;
@@ -639,9 +633,9 @@ int main()
 		double z_n = current_plane.get_normal()[2];
 
 		double normal_vector_double[n] = { current_plane.get_normal()[0] ,current_plane.get_normal()[1] ,current_plane.get_normal()[2] };
-		//x_n = x_n / current_plane.length(normal_vector_double);
-		//y_n = y_n / current_plane.length(normal_vector_double);
-		//z_n = z_n / current_plane.length(normal_vector_double);
+		x_n = x_n / current_plane.length(normal_vector_double);
+		y_n = y_n / current_plane.length(normal_vector_double);
+		z_n = z_n / current_plane.length(normal_vector_double);
 
 		normalvis << fixed << y_n << " " << x_n << " " << z_n << "\n          ";
 	}
