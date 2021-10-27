@@ -1,8 +1,8 @@
 //   GeoAnomalia, a program to calculate local geometry of geological surfaces. 
 //   As input you need points (XYZ) documenting  surface. As a result you will get orientations (dip and dip direction) attached to Delaunay triangles.
 //   The output of this program can serve as an input for unsupervised learning approaches (e.g. you can cluster normal vectors to the triangles or dip vectors of the triangles) 
-//   Copyright © 2020, 2021 Micha³ Michalak
-//   Copyright © 2016 CGAL
+//   Copyright Â© 2020, 2021 MichaÅ‚ Michalak
+//   Copyright Â© 2016 CGAL
 //   This program is free software: you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
