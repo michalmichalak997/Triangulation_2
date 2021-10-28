@@ -208,10 +208,11 @@ public:
 				normal_vec[1] *= -1;
 				normal_vec[2] *= -1;
 			}
+			double normal_vector_length = length(normal_vec);
 
-			normal_vec[0] /= length(normal_vec);
-			normal_vec[1] /= length(normal_vec);
-			normal_vec[2] /= length(normal_vec);
+			normal_vec[0] /= normal_vector_length;
+			normal_vec[1] /= normal_vector_length;
+			normal_vec[2] /= normal_vector_length;
 
 			this->dip_vec[0] = cos(dip_angle(z_axis, normal_vec) / coeff)*cos(dip_azimuth(normal_vec) / coeff);
 			this->dip_vec[1] = cos(dip_angle(z_axis, normal_vec) / coeff)*sin(dip_azimuth(normal_vec) / coeff);
@@ -440,10 +441,10 @@ int main()
 		double y_n = current_plane.get_normal()[1];
 		double z_n = current_plane.get_normal()[2];
 
-		double normal_vector_double[n] = { current_plane.get_normal()[0] ,current_plane.get_normal()[1] ,current_plane.get_normal()[2] };
-		x_n = x_n / current_plane.length(normal_vector_double);
-		y_n = y_n / current_plane.length(normal_vector_double);
-		z_n = z_n / current_plane.length(normal_vector_double);
+		//double normal_vector_double[n] = { current_plane.get_normal()[0] ,current_plane.get_normal()[1] ,current_plane.get_normal()[2] };
+		//x_n = x_n / current_plane.length(normal_vector_double);
+		//y_n = y_n / current_plane.length(normal_vector_double);
+		//z_n = z_n / current_plane.length(normal_vector_double);
 
 		double x_d = current_plane.get_dip_vec()[0]; //extracting coordinates of the dip vector of a planar Delaunay triangle
 		double y_d = current_plane.get_dip_vec()[1];
@@ -657,7 +658,7 @@ int main()
 		double y_n = current_plane.get_normal()[1];
 		double z_n = current_plane.get_normal()[2];
 
-		double normal_vector_double[n] = { current_plane.get_normal()[0] ,current_plane.get_normal()[1] ,current_plane.get_normal()[2] };
+		//double normal_vector_double[n] = { current_plane.get_normal()[0] ,current_plane.get_normal()[1] ,current_plane.get_normal()[2] };
 		//x_n = x_n / current_plane.length(normal_vector_double);
 		//y_n = y_n / current_plane.length(normal_vector_double);
 		//z_n = z_n / current_plane.length(normal_vector_double);
