@@ -89,13 +89,12 @@ Windows 10 Home, 64-bit, processor x64.
 
 Version numbers can be different, those used in our work are given: 
 
-  -Microsoft Visual Studio 2017, 
+  -Microsoft Visual Studio 2022 
   
-  -CGAL library (ver. 4.8),
+  -CGAL library (ver. 4.8 or ver. 5.4),
   
   -Boost library (ver. 1.59), 
   
-  -Microsoft Visual C++ 2017 Redistributable
   
 ### Program language
 
@@ -106,7 +105,7 @@ C++
 GNU General Public License v3.0.
 
 
-# GeoAnomalia. Move to R - part 1 - Spatial analyses, clustering, cluster centres.
+# GeoAnomalia. Move to R - Spatial analyses, clustering, cluster centres.
 
 You should first delete the first line in your file that includes information about the taken horizons. 
 For example, in the file with extension _01 you should delete the first line "Index of the first surface:0Index of the first surface:1".
