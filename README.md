@@ -1,6 +1,6 @@
 # GeoAnomalia. 
 
-Summary: 
+### Summary: 
 
 This software offers possibility to conduct 3D geometric analysis (3D outlier detection) for geological terrains.
 
