@@ -120,7 +120,7 @@ KSH_grid_locate_150.txt
 KSH_grid_locate_100.txt  
 KSH_grid_locate_50.txt  
 
-CEBS.R (for Central European Basin System). You will need the following files from our Zenodo repo:  
+CEBS.R (https://github.com/michalmichalak997/Triangulation_2/blob/master/CEBS.R - for Central European Basin System). You will need the following files from our Zenodo repo:  
 
 CEBS_output.txt
 
