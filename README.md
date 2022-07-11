@@ -112,7 +112,7 @@ For example, in the file with extension _01 you should delete the first line "In
 
 Use the following R scripts:
 
-KSH.R (for Kraków-Silesian Homocline). You will need the following files from our Zenodo repo:  
+KSH.R (https://github.com/michalmichalak997/Triangulation_2/blob/master/KSH.R - for Kraków-Silesian Homocline). You will need the following files from our Zenodo repo:  
 
 KSH_output.txt  
 KSH_grid_locate_200.txt  
