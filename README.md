@@ -6,12 +6,11 @@ This software offers possibility to conduct 3D geometric analysis (3D outlier de
 
 For data used in our article, see our Zenodo repository: https://doi.org/10.5281/zenodo.6405496
 
-A freely available C++ code (orientation_maps.cpp) is required to produce files for the spatial portion of the research.
-However, to run orientation.cpp file, you will need first to install CGAL library (https://doc.cgal.org/latest/Manual/installation.html).
+A freely available C++ code (orientation_maps.cpp - https://github.com/michalmichalak997/SurfaceCompare/blob/master/orientation_maps.cpp) is required to produce files for the spatial portion of the research.
+However, to run orientation.cpp file (https://github.com/michalmichalak997/SurfaceCompare/blob/master/orientation_maps.cpp), 
+you will need first to install CGAL library (https://doc.cgal.org/latest/Manual/installation.html).
 
-For Kraków Silesian Homocline you will need the following file as input: KSH_input.txt (to work with orientation_maps.cpp)
-For Central European Basin System you will need the following file as input: CEBS_input.txt (to work with orientation_maps.cpp)
-The C++ program (orientation_maps.cpp) requires a text file as input with the following columns: 
+The C++ program (orientation_maps.cpp - https://github.com/michalmichalak997/SurfaceCompare/blob/master/orientation_maps.cpp) requires a text file as input with the following columns: 
 XY coordinates common for all horizons as two first columns, n columns representing n horizons and the id pointing to the row number as the last column. 
 
 Then, you two R files produce spatial outputs: for Kraków-Silesian Homocline (with grid maps), and Central European Basin System, respectively. 
@@ -25,6 +24,7 @@ Affiliations:
 
 ## Input
 
+See our Zenodo repository to download the files used in our article (https://doi.org/10.5281/zenodo.6405496).
 For Kraków Silesian Homocline you will need the following file as input: KSH_input.txt.
 For Central European Basin System you will need the following file as input: CEBS_input.txt.
 
