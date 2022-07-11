@@ -28,7 +28,7 @@ See our Zenodo repository to download the files used in our article (https://doi
 For Kraków Silesian Homocline you will need the following file as input: KSH_input.txt.
 For Central European Basin System you will need the following file as input: CEBS_input.txt.
 
-For your own data, you will need to prepare your input files in the following format (the data frame has 41 observations - surface points):
+For your own data, you will need to prepare your input files in the following format (the data frame has 41 observations - surface points):  
 
 0.4 2.0 4.5 1  
 0.2 0.1 10.3 2  
@@ -37,13 +37,13 @@ For your own data, you will need to prepare your input files in the following fo
 ...  
 0.12 10.1 14.1 41  
 
-Where the columns denote the following properties:
+Where the columns denote the following properties:  
 1st column: latitude in UTM  
 2nd column: longitude in UTM  
 3rd column: elevation  
 4th column: id  
 
-In fact, the orientation.cpp file accepts many elevations, so the below structure is accepted as well:
+In fact, the orientation.cpp file accepts many elevations, so the below structure is accepted as well:  
 
 0.4 2.0 4.5 1.1 2.1 ... 1  
 0.2 0.1 10.3 0.6 1.1 .... 2  
