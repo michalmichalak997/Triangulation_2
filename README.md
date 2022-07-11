@@ -30,12 +30,12 @@ For Central European Basin System you will need the following file as input: CEB
 
 For your own data, you will need to prepare your input files in the following format (the data frame has 41 observations - surface points):
 
-0.4 2.0 4.5 1 \n
-0.2 0.1 10.3 2 \n
-... \n
-... \n
-... \n
-0.12 10.1 14.1 41 \n
+0.4 2.0 4.5 1 \\
+0.2 0.1 10.3 2 \\
+... \\
+... \\
+... \\
+0.12 10.1 14.1 41 \\
 
 Where the columns denote the following properties:
 1st column: latitude in UTM
