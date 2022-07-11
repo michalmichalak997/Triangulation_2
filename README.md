@@ -13,7 +13,7 @@ you will need first to install CGAL library (https://doc.cgal.org/latest/Manual/
 The C++ program (orientation_maps.cpp - https://github.com/michalmichalak997/SurfaceCompare/blob/master/orientation_maps.cpp) requires a text file as input with the following columns: 
 XY coordinates common for all horizons as two first columns, n columns representing n horizons and the id pointing to the row number as the last column. 
 
-Then, you two R files produce spatial outputs: for Kraków-Silesian Homocline (with grid maps), and Central European Basin System, respectively. 
+If you want to process our data, you will need two .R files produce spatial outputs: for Kraków-Silesian Homocline (with grid maps), and Central European Basin System, respectively. 
 
 Developer: Michał Michalak (michalmichalak@us.edu.pl)
 
