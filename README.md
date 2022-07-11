@@ -112,15 +112,15 @@ For example, in the file with extension _01 you should delete the first line "In
 
 Use the following R scripts:
 
-KSH.R (for Kraków-Silesian Homocline). You will need the following files from our Zenodo repo: 
+KSH.R (for Kraków-Silesian Homocline). You will need the following files from our Zenodo repo:  
 
-KSH_output.txt
-KSH_grid_locate_200.txt
-KSH_grid_locate_150.txt
-KSH_grid_locate_100.txt
-KSH_grid_locate_50.txt
+KSH_output.txt  
+KSH_grid_locate_200.txt  
+KSH_grid_locate_150.txt  
+KSH_grid_locate_100.txt  
+KSH_grid_locate_50.txt  
 
-CEBS.R (for Central European Basin System). You will need the following files from our Zenodo repo: 
+CEBS.R (for Central European Basin System). You will need the following files from our Zenodo repo:  
 
 CEBS_output.txt
 
