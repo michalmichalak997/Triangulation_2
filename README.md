@@ -107,8 +107,8 @@ GNU General Public License v3.0.
 
 # GeoAnomalia. Move to R - Spatial analyses, clustering, cluster centres.
 
-You should first delete the first line in your file that includes information about the taken horizons. 
-For example, in the file with extension _01 you should delete the first line "Index of the first surface:0Index of the first surface:1".
+Depending on the software version, you may need to first delete the first line in your output file that includes information about the taken horizons. 
+For example, in the file with extension _01 you should delete the first line "Index of the first surface:0".
 
 Use the following R scripts:
 
