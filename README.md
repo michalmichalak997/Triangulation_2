@@ -67,7 +67,7 @@ Last column: id
 
 ## Processing and output: Orientation maps
 
-To create clustering and grid maps used in the article you need to first use the orientation_maps.cpp file. The structure of the input is presented above. 
+To create clustering and grid maps used in the article you need to first use the orientation_maps.cpp (https://github.com/michalmichalak997/SurfaceCompare/blob/master/orientation_maps.cpp) file. The structure of the input is presented above. 
 Note that you need to specify the spacing of the regular grid. 
 To obtain the grid map, you will specifically need the file with the extension _grid_locate.
 
